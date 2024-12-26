@@ -1,0 +1,176 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<style>
+   .siblings_product .product-item {
+   border: 0.7px solid #DEDEDE;
+   border-radius: 5px;
+   }
+   .siblings_product .product-item.active {
+   border-color: #BA5A31;
+   }
+   .siblings_product .product-item img {
+   border-radius: 5px;
+   background: #fff;
+       height: 100%;
+     width: 100%;
+     display: block;
+     object-fit: cover;
+   }
+   .sibling-products h2 {
+   font-size: 16px;
+   font-weight: 400;
+   line-height: 24px;
+   margin-bottom: 10px;
+   }
+   .sibling-products * {
+   text-transform: uppercase;
+   }
+   .sibling-products span {
+   margin-right: 6px;
+   color: #757575;
+   text-transform: capitalize;
+   }
+
+   .siblings_product {
+   position: relative;
+   }
+   .swiper-button-prev svg {
+   rotate: 180deg;
+   }
+  .sibling-products .swiper-button {
+   top: auto;
+   bottom: 7px;
+   width: 16px;
+   }
+   .swiper-button-prev.swiper-button {
+   left: -20px;
+   }
+   .swiper-button.swiper-button-disabled {
+   opacity:0;
+   }
+   .swiper-button-next.swiper-button {
+   right: 6px;
+   }
+
+   @media screen and (max-width:749px) {
+   .sibling-products .swiper-button {
+   display: none;
+   }
+   }
+   @media screen and (min-width:750px) {
+    .siblings_product .product-item {
+   width: 56px;
+   height: 56px;
+   min-width: 56px;
+   }
+   .sibling-products {
+   width: 442px;
+   padding-top:4px;
+   }
+        .sibling-product li {
+   width: 56px !important;
+   }
+   }
+</style>
+
+{%comment%} <svg class="sibling-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none">
+<path d="M5.77734 2.61218L11.5551 8.38996L5.77734 14.1677" stroke="#747474" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+ {%endcomment%}
+
+
+{%- liquid
+  # Extract namespace and key from the metafield reference
+  assign metafield_parts = block.settings.collection_handle_metafield | split: '.'
+  assign metafield_namespace = metafield_parts | first
+  assign metafield_key = metafield_parts | last
+
+  # Retrieve the sibling collection handle from the current product's metafields
+  assign sibling_collection_handle = product.metafields[metafield_namespace][metafield_key].value | escape
+  # Check if sibling_collection_handle is not empty or nil
+  if sibling_collection_handle != blank
+    assign sibling_collection = collections[sibling_collection_handle]
+  else
+    assign sibling_collection = null
+  endif
+
+  # Initialize variables for active product
+  assign active_product = null
+
+  # Identify the active product
+  if sibling_collection
+    for sibling_product in sibling_collection.products
+      if sibling_product.id == product.id
+        assign active_product = sibling_product
+      endif
+    endfor
+  endif
+
+  # Retrieve color name from product metafields
+  assign color_name = product.metafields.custom.sibling_colors
+-%}
+
+{%- if active_product or sibling_collection.products.size > 0 -%}
+  <div class="sibling-products">
+    {% if color_name != blank %}
+      <h2><span>Farbe:</span>{{ color_name }}</h2>
+    {% else %}
+      <h2><span>Bundles:</span></h2>
+    {% endif %}
+    <div class="sibling-product swiper">
+      <ul class="swiper-wrapper product-grid">
+        {%- if active_product -%}
+          <li class="swiper-slide">
+            <div class="product-item active">
+              <a href="{{ active_product.url }}" class="product-link">
+                <img
+                  src="{{ active_product.featured_image | img_url: 'original' }}"
+                  alt="{{ active_product.title }}"
+                  class="product-image"
+                  height=""
+                  width=""
+                  loading="lazy"
+                >
+              </a>
+            </div>
+          </li>
+        {%- endif -%}
+
+        {%- for sibling_product in sibling_collection.products -%}
+          {%- if sibling_product.id != product.id -%}
+            <li class="swiper-slide">
+              <div class="product-item">
+                <a href="{{ sibling_product.url }}" class="product-link">
+                  <img
+                    src="{{ sibling_product.featured_image | img_url: 'medium' }}"
+                    alt="{{ sibling_product.title }}"
+                    class="product-image"
+                    height=""
+                    width=""
+                    loading="lazy"
+                  >
+                </a>
+              </div>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    </div>
+    <div class="swiper-button-next swiper-button">{% render 'icon-sibling-product' %}</div>
+    <div class="swiper-button-prev swiper-button">{% render 'icon-sibling-product' %}</div>
+  </div>
+{%- endif -%}
+
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- Initialize Swiper -->
+<script>
+  var swiper = new Swiper(".sibling-product", {
+    slidesPerView: 6,
+    spaceBetween: 8,
+     navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+  });
+</script>

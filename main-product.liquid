@@ -1,0 +1,25 @@
+ 
+
+ {% when 'sibling_products' %}
+<div class="siblings_product">
+    {%- render 'sibling-products', block: block, product: product, section_id: section.id -%}
+</div>
+
+{% schema %}
+
+{
+      "type": "sibling_products",
+      "name": "Sibling products",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Link sibling products"
+        },
+        {
+          "type": "text",
+          "id": "collection_handle_metafield",
+          "label": "Collection handle metafield"
+        }
+      ]
+    },
+    {% endschema %}
